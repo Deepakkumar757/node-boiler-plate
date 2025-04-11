@@ -1,9 +1,9 @@
 import express from 'express';
-import essentialMiddleware from './middleware/essential.middleware';
-import routes from './lib/routes';
 import { appLogger, logger } from './lib/logger';
 import { serverConfig } from './config';
+import essentialMiddleware from './middleware/essential.middleware';
 import swagger from './lib/swagger';
+import routes from './lib/routes';
 
 async function startServer() {
   const app = express();

@@ -10,6 +10,64 @@ A robust Express.js server with middleware, error handling, and auto-generated d
 - Swagger API documentation
 - ESLint and Prettier for code consistency
 - TypeScript support
+- Environment-based configuration with Zod validation
+
+## Configuration System
+
+The application uses a robust configuration system with Zod schema validation:
+
+### Structure
+
+```typescript
+// Configuration is divided into logical groups:
+{
+  db: {
+    DB_HOST, DB_NAME, DB_PORT, DB_USER, DB_PASSWORD, DB_SCHEMA
+  },
+  jwt: {
+    ACCESS_SECRET, REFRESH_SECRET
+  },
+  server: {
+    PORT, SWAGGER, RETRY_LIMIT
+  },
+  init: {
+    INITIALIZATION_DB, INITIALIZATION_MIGRATION
+  }
+}
+```
+
+### Usage
+
+Always use the configuration system instead of directly accessing process.env:
+
+```typescript
+// ❌ Don't do this
+const port = process.env.PORT;
+
+// ✅ Do this instead
+import { serverConfig } from './config';
+const port = serverConfig.PORT;
+```
+
+### Adding New Configuration
+
+1. Define the schema in `src/config/config.schema.ts`
+2. Add validation rules and default values
+3. Update the configuration type
+4. Access via the validated config object
+
+Example:
+```typescript
+// In config.schema.ts
+const newFeatureSchema = z.object({
+  FEATURE_FLAG: z.string().default('false'),
+  FEATURE_LIMIT: z.string().default('10')
+});
+
+// In your code
+import { newFeatureConfig } from './config';
+const limit = newFeatureConfig.FEATURE_LIMIT;
+```
 
 ## Getting Started
 

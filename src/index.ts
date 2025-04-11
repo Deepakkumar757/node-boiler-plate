@@ -1,3 +1,4 @@
+import './utils/loadEnv';
 import { errorHandler } from './lib/error-handling/error';
 import { logger } from './lib/logger';
 import startServer from './server';
