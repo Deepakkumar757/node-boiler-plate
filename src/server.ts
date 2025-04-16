@@ -4,6 +4,7 @@ import { serverConfig } from './config';
 import essentialMiddleware from './middleware/essential.middleware';
 import swagger from './lib/swagger';
 import routes from './lib/routes';
+import { Postgres } from './datasource';
 
 async function startServer() {
   const app = express();
@@ -18,15 +19,18 @@ async function startServer() {
   swagger(app);
 
   // Setup routes
-  await routes(app);
+  app.use('/api/v1', routes);
 
   // Start server
   const connection = app.listen(serverConfig.PORT, () => {
-    logger.info(`Server is running on http://localhost:${serverConfig.PORT}`);
-    logger.info(`API Documentation available at http://localhost:${serverConfig.PORT}/api-docs`);
+    logger.info(`Server is running on :${serverConfig.PORT}`);
+    logger.info(`API Documentation available at :${serverConfig.PORT}/api-docs`);
   });
+
+  // Connect to database
+  await Postgres.connect();
 
   return connection;
 }
 
-export default startServer;
+export { startServer };

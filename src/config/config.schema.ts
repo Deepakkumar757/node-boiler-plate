@@ -3,7 +3,10 @@ import { z } from 'zod';
 const dbSchema = z.object({
   DB_HOST: z.string().default('localhost'),
   DB_NAME: z.string().default('postgres'),
-  DB_PORT: z.string().default('5432'),
+  DB_PORT: z
+    .string()
+    .default('5432')
+    .transform((value) => parseInt(value)),
   DB_USER: z.string().default('postgres'),
   DB_PASSWORD: z.string().default('postgres'),
   DB_SCHEMA: z.string().default('public')
@@ -15,14 +18,29 @@ const jwtSchema = z.object({
 });
 
 const serverSchema = z.object({
-  PORT: z.string().default('3000'),
-  SWAGGER: z.string().default('true'),
-  RETRY_LIMIT: z.string().default('3')
+  PORT: z
+    .string()
+    .default('3000')
+    .transform((value) => parseInt(value)),
+  SWAGGER: z
+    .string()
+    .default('true')
+    .transform((value) => value === 'true'),
+  RETRY_LIMIT: z
+    .string()
+    .default('3')
+    .transform((value) => parseInt(value))
 });
 
 const initSchema = z.object({
-  INITIALIZATION_DB: z.string().default('false'),
-  INITIALIZATION_MIGRATION: z.string().default('false')
+  INITIALIZATION_DB: z
+    .string()
+    .default('false')
+    .transform((value) => value === 'true'),
+  INITIALIZATION_MIGRATION: z
+    .string()
+    .default('false')
+    .transform((value) => value === 'true')
 });
 
 export const configSchema = {

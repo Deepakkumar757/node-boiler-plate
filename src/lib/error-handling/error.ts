@@ -3,6 +3,7 @@ import { Server } from 'http';
 import { ZodError } from 'zod';
 import { logger } from '../logger';
 import { AppError } from './AppError';
+import { AsyncRequestHandler } from '../../global';
 
 const normalizeError = (error: unknown): AppError => {
   if (error instanceof AppError) return error;
@@ -68,7 +69,7 @@ const terminateExpressAndExit = async () => {
   process.exit(1);
 };
 
-export const asyncHandler = (fn: (req: Request, res: Response, _next: NextFunction) => Promise<unknown>) => {
+export const asyncHandler = <T extends AsyncRequestHandler = AsyncRequestHandler>(fn: T) => {
   return (req: Request, res: Response, _next: NextFunction) => {
     Promise.resolve(fn(req, res, _next)).catch(_next);
   };

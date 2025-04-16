@@ -1,23 +1,9 @@
-import { existsSync, readdirSync } from 'fs';
-import { Application } from 'express';
-import path from 'path';
+import { Router } from 'express';
+import ProcessRouter from '../domain/process/process.router';
 
-const routes = async (app: Application) => {
-  const domainPath = path.join(__dirname, '..', 'domain');
+const routes = Router();
 
-  if (existsSync(domainPath)) {
-    for (const domain of readdirSync(domainPath)) {
-      const routerPath = path.join(domainPath, domain, 'router');
-      if (existsSync(routerPath)) {
-        for (const file of readdirSync(routerPath)) {
-          if (file.endsWith('.router.ts')) {
-            const { default: router } = await import(path.join(routerPath, file));
-            app.use(`/api/v1/${domain}`, router);
-          }
-        }
-      }
-    }
-  }
-};
+routes.use('/health', (req, res) => res.send('OK'));
+routes.use('/process', ProcessRouter);
 
 export default routes;

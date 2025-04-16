@@ -15,7 +15,9 @@ const logger = createLogger({
 });
 
 const appLogger = (req: Request, res: Response, next: NextFunction) => {
-  logger.info(`${req.method} ${req.url}`);
+  logger.info(
+    `${req.headers['x-forwarded-for'] || req.socket.remoteAddress} ${req.method} ${req.url} ${res.statusCode}`
+  );
   next();
 };
 

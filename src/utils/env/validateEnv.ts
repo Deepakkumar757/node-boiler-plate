@@ -1,4 +1,4 @@
-import { configSchema, type Config } from '../config/config.schema';
+import { configSchema, type Config } from '../../config/config.schema';
 
 export function validateEnv<T extends keyof Config>(type: T): Config[T] {
   const envConfig = Object.keys(configSchema[type].shape).reduce(

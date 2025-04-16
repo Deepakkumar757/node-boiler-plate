@@ -1,5 +1,5 @@
 import type { DbConfig, JwtConfig, ServerConfig, InitConfig } from './config.schema';
-import { validateEnv } from '../utils/validateEnv';
+import { validateEnv } from '../utils/env/validateEnv';
 
 const dbConfig = validateEnv('db') as DbConfig;
 const jwtConfig = validateEnv('jwt') as JwtConfig;
@@ -10,4 +10,6 @@ const autoIdPrefixConfig = {
   request: 'REQ'
 } as const;
 
-export { dbConfig, jwtConfig, serverConfig, initConfig, autoIdPrefixConfig };
+const adminId = 'b64f413b-c0c6-4b79-b918-68fef0679649';
+
+export { dbConfig, jwtConfig, serverConfig, initConfig, autoIdPrefixConfig, adminId };
