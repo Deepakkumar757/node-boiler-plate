@@ -5,8 +5,9 @@ import * as path from 'path';
 /* eslint-disable no-console */
 
 const createDomainStructure = (domainName: string) => {
+  const capitalizedName = domainName.charAt(0).toUpperCase() + domainName.slice(1);
   const basePath = path.join(process.cwd(), 'src', 'domain', domainName);
-  const modelName = domainName;
+  const modelName = capitalizedName;
 
   // Create domain directory
   if (!fs.existsSync(basePath)) {
@@ -14,7 +15,7 @@ const createDomainStructure = (domainName: string) => {
   }
 
   // Create directories that need subdirectories
-  const directoriesWithSubdirs = ['model', 'validation'];
+  const directoriesWithSubdirs = ['model', 'validation', 'controller', 'service', 'repository', '__tests__'];
   directoriesWithSubdirs.forEach((dir) => {
     const dirPath = path.join(basePath, dir);
     if (!fs.existsSync(dirPath)) {
@@ -28,25 +29,25 @@ const createDomainStructure = (domainName: string) => {
       name: `${modelName}.router.ts`,
       path: basePath,
       template: `import express from 'express';
-import { ${modelName}Controller } from './${modelName}.controller';
-import { validate } from './validation/${modelName}.validation';
+import { ${modelName}Controller } from './controller/${modelName}.controller';
+import { validate, ${domainName}CreateDataSchema, ${domainName}UpdateDataSchema } from './validation/${modelName}.validation';
 
 const router = express.Router();
 const controller = new ${modelName}Controller();
 
 router.get('/', controller.getAll);
 router.get('/:id', controller.getById);
-router.post('/', validate, controller.create);
-router.put('/:id', validate, controller.update);
+router.post('/', validate(${domainName}CreateDataSchema), controller.create);
+router.put('/:id', validate(${domainName}UpdateDataSchema), controller.update);
 router.delete('/:id', controller.delete);
 
 export default router;`
     },
     {
       name: `${modelName}.controller.ts`,
-      path: basePath,
+      path: path.join(basePath, 'controller'),
       template: `import { Request, Response } from 'express';
-import { ${modelName}Service } from './${modelName}.service';
+import { ${modelName}Service } from '../service/${modelName}.service';
 import { asyncHandler } from '../../lib/error-handling/error';
 
 export class ${modelName}Controller {
@@ -83,9 +84,43 @@ export class ${modelName}Controller {
 }`
     },
     {
-      name: `${modelName}.service.ts`,
+      name: `${modelName}.types.ts`,
       path: basePath,
-      template: `import { ${modelName}Repository } from './${modelName}.repository';
+      template: `import { ${modelName} } from './model/${modelName}.model';
+import { Any, EntityType, Object } from '../../global';
+import { Request, Response, NextFunction } from 'express';
+import { z } from 'zod';
+import {
+  ${domainName}CreateDataSchema,
+  ${domainName}DetailsFetchSchema,
+  ${domainName}ListFetchSchema,
+  ${domainName}RemoveSchema,
+  ${domainName}UpdateDataSchema
+} from './validation/${domainName}.validation';
+
+export type I${modelName} = EntityType<${modelName}>;
+
+export type getAll${modelName}Query = z.infer<(typeof ${domainName}ListFetchSchema)['query']>;
+export type get${modelName}DetailsQuery = z.infer<(typeof ${domainName}DetailsFetchSchema)['params']>;
+export type create${modelName}Body = z.infer<(typeof ${domainName}CreateDataSchema)['body']>;
+export type update${modelName}Body = z.infer<(typeof ${domainName}UpdateDataSchema)['body']>;
+export type remove${modelName}Body = z.infer<(typeof ${domainName}RemoveSchema)['params']>;
+
+export type I${modelName}Controller = {
+  getAll: (
+    req: Request<Object, Object, unknown, getAll${modelName}Query, Record<string, Any>>,
+    res: Response
+  ) => Promise<void>;
+  getById: (req: Request<Object, Object, get${modelName}DetailsQuery>, res: Response, next: NextFunction) => Promise<void>;
+  create: (req: Request<Object, Object, create${modelName}Body>, res: Response, next: NextFunction) => Promise<void>;
+  update: (req: Request<Object, Object, update${modelName}Body>, res: Response, next: NextFunction) => Promise<void>;
+  delete: (req: Request<Object, Object, remove${modelName}Body>, res: Response, next: NextFunction) => Promise<void>;
+};`
+    },
+    {
+      name: `${modelName}.service.ts`,
+      path: path.join(basePath, 'service'),
+      template: `import { ${modelName}Repository } from '../repository/${modelName}.repository';
 import { I${modelName} } from './model/${modelName}.model';
 import { AppError } from '../../lib/error-handling/AppError';
 
@@ -144,33 +179,44 @@ export class ${modelName}Service {
     },
     {
       name: `${modelName}.repository.ts`,
-      path: basePath,
-      template: `import { I${modelName} } from './model/${modelName}.model';
+      path: path.join(basePath, 'repository'),
+      template: `import { Repository } from 'typeorm';
+import { AppDataSource } from '../../../lib/typeorm';
+import { ${modelName} } from '../model/${modelName}.model';
 
 export class ${modelName}Repository {
-  async findAll(): Promise<I${modelName}[]> {
-    // Implement database query logic
-    throw new Error('Not implemented');
+  private repository: Repository<${modelName}>;
+
+  constructor() {
+    this.repository = AppDataSource.getRepository(${modelName});
   }
 
-  async findById(id: string): Promise<I${modelName} | null> {
-    // Implement database query logic
-    throw new Error('Not implemented');
+  async findAll(): Promise<${modelName}[]> {
+    return this.repository.find({
+      where: { isDeleted: false },
+      relations: ['createdBy', 'updatedBy']
+    });
   }
 
-  async create(data: I${modelName}): Promise<I${modelName}> {
-    // Implement database query logic
-    throw new Error('Not implemented');
+  async findById(id: string): Promise<${modelName} | null> {
+    return this.repository.findOne({
+      where: { id, isDeleted: false },
+      relations: ['createdBy', 'updatedBy']
+    });
   }
 
-  async update(id: string, data: Partial<I${modelName}>): Promise<I${modelName}> {
-    // Implement database query logic
-    throw new Error('Not implemented');
+  async create(data: Partial<${modelName}>): Promise<${modelName}> {
+    const entity = this.repository.create(data);
+    return this.repository.save(entity);
+  }
+
+  async update(id: string, data: Partial<${modelName}>): Promise<${modelName}> {
+    await this.repository.update(id, data);
+    return this.findById(id) as Promise<${modelName}>;
   }
 
   async delete(id: string): Promise<void> {
-    // Implement database query logic
-    throw new Error('Not implemented');
+    await this.repository.update(id, { isDeleted: true });
   }
 }`
     },
@@ -291,21 +337,15 @@ export class ${modelName}Repository {
     {
       name: `${modelName}.model.ts`,
       path: path.join(basePath, 'model'),
-      template: `export interface I${modelName} {
-  id?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+      template: `import { Entity, Column, PrimaryGeneratedColumn, Index, BaseEntity, ManyToOne, JoinColumn } from 'typeorm';
+import { Users } from '../../users/model/users.model';
+
+@Index('${domainName}_pkey', ['id'], { unique: true })
+@Index('idx_${domainName}_id', ['id'], {})
+@Index('idx_${domainName}_isdeleted', ['isDeleted'], {})
+@Entity('${domainName}')
+export class ${modelName} extends BaseEntity {
   // Add your model properties here
-}
-
-export class ${modelName} implements I${modelName} {
-  id?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-
-  constructor(data: I${modelName}) {
-    Object.assign(this, data);
-  }
 }`
     },
     {
@@ -315,17 +355,61 @@ export class ${modelName} implements I${modelName} {
 import { z } from 'zod';
 import { AppError } from '../../../lib/error-handling/AppError';
 
-const ${modelName}Schema = z.object({
-  // Add your validation schema here
+const ${domainName}CreateDataSchema = z.object({
+  body: z.object({
+    name: z.string().min(1).max(100),
+    description: z.string().min(1).max(255),
+    createdBy: z.string().uuid()
+  })
 });
 
-export const validate = async (
+const ${domainName}UpdateDataSchema = z.object({
+  body: z.object({
+    name: z.string().min(1).max(100).optional(),
+    description: z.string().min(1).max(255).optional(),
+    updatedBy: z.string().uuid()
+  })
+});
+
+const ${domainName}DetailsFetchSchema = z.object({
+  params: z.object({
+    id: z.string().uuid()
+  })
+});
+
+const ${domainName}ListFetchSchema = z.object({
+  query: z.object({
+    page: z.string().optional(),
+    limit: z.string().optional(),
+    search: z.string().optional()
+  })
+});
+
+const ${domainName}RemoveSchema = z.object({
+  params: z.object({
+    id: z.string().uuid()
+  })
+});
+
+export {
+  ${domainName}CreateDataSchema,
+  ${domainName}UpdateDataSchema,
+  ${domainName}DetailsFetchSchema,
+  ${domainName}ListFetchSchema,
+  ${domainName}RemoveSchema
+};
+
+export const validate = (schema: z.AnyZodObject) => async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    await ${modelName}Schema.parseAsync(req.body);
+    await schema.parseAsync({
+      body: req.body,
+      query: req.query,
+      params: req.params
+    });
     next();
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -335,6 +419,19 @@ export const validate = async (
     }
   }
 };`
+    },
+    {
+      name: `${modelName}.test.ts`,
+      path: path.join(basePath, '__tests__'),
+      template: `import { AppDataSource } from '../../../lib/typeorm';
+import { ${modelName} } from '../model/${modelName}.model';
+import { ${modelName}Repository } from '../repository/${modelName}.repository';
+import { ${modelName}Service } from '../service/${modelName}.service';
+
+describe('${modelName} Tests', () => {
+  // Add your test cases here
+});
+`
     }
   ];
 

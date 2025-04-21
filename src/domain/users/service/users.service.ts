@@ -1,6 +1,6 @@
-import { usersRepository } from './users.repository';
-import { Iusers } from './model/users.model';
-import { AppError } from '../../lib/error-handling/AppError';
+import { usersRepository } from '../repository/users.repository';
+import { Users } from '../model/users.model';
+import { AppError } from '../../../lib/error-handling/AppError';
 
 export class usersService {
   private repository: usersRepository;
@@ -21,7 +21,7 @@ export class usersService {
     return item;
   }
 
-  async create(data: Iusers) {
+  async create(data: Users) {
     try {
       return await this.repository.create(data);
     } catch (error) {
@@ -29,7 +29,7 @@ export class usersService {
     }
   }
 
-  async update(id: string, data: Partial<Iusers>) {
+  async update(id: string, data: Partial<Users>) {
     const item = await this.repository.findById(id);
     if (!item) {
       throw new AppError(404, 'users not found');

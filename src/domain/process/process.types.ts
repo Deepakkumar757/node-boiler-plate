@@ -22,7 +22,7 @@ export type IprocessController = {
   getAll: (
     req: Request<Object, Object, unknown, getAllProcessQuery, Record<string, Any>>,
     res: Response
-  ) => Promise<void>;
+  ) => Promise<Response>;
   getById: (req: Request<Object, Object, getProcessDetailsQuery>, res: Response, next: NextFunction) => Promise<void>;
   create: (req: Request<Object, Object, createProcessBody>, res: Response, next: NextFunction) => Promise<void>;
   update: (req: Request<Object, Object, updateProcessBody>, res: Response, next: NextFunction) => Promise<void>;

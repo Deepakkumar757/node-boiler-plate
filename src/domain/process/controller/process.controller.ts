@@ -12,8 +12,7 @@ export class processController {
 
   getAll = asyncHandler<IprocessController['getAll']>(async (req, res) => {
     const items = await this.processService.getAll(req.query);
-    res.json(items);
-    return;
+    return res.json(items);
   });
 
   getById = asyncHandler<IprocessController['getById']>(async (req, res) => {
@@ -46,3 +45,5 @@ export class processController {
     });
   });
 }
+
+export default new processController();

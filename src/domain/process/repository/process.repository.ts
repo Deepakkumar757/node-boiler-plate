@@ -1,10 +1,17 @@
+// import { logger } from '../../../lib/logger';
 import { Process } from '../model/process.model';
 import { getAllProcessQuery, Iprocess } from '../process.types';
 import { EntityManager } from 'typeorm';
+import { searchQuery } from '../../../lib/query/search';
+import { pagination } from '../../../lib/query/pagination';
 
 export class processRepository {
   async findAll(params: getAllProcessQuery): Promise<Iprocess[]> {
-    return Process.find();
+    const { page, limit, search } = params;
+    let query = Process.createQueryBuilder('process');
+    query = searchQuery<Process>({ columns: ['name'], value: search }, query);
+    query = pagination({ limit, page }, query);
+    return query.getMany();
   }
 
   async findById(id: string): Promise<Iprocess | null> {

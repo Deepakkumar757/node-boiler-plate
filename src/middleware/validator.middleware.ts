@@ -12,13 +12,13 @@ export const ReqValidator = (schema: ValidatorOptions) => (req: Request, res: Re
   try {
     const { params, query, body } = schema;
     if (params) {
-      params.parse(req.params);
+      req.params = params.parse(req.params);
     }
     if (query) {
-      query.parse(req.query);
+      req.query = query.parse(req.query);
     }
     if (body) {
-      body.parse(req.body);
+      req.body = body.parse(req.body);
     }
     next();
   } catch (error) {

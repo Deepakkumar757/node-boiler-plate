@@ -1,4 +1,4 @@
-import { DeepPartial, BaseEntity } from 'typeorm';
+import { DeepPartial, BaseEntity, ObjectLiteral } from 'typeorm';
 import { Request, Response, NextFunction } from 'express';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type Any = any;
@@ -9,7 +9,7 @@ export interface Object {
 
 export type envType = 'development' | 'test' | 'production';
 
-export type EntityType<E extends BaseEntity> = Omit<DeepPartial<E>, keyof BaseEntity>;
+export type EntityType<E extends ObjectLiteral> = Omit<DeepPartial<E>, keyof BaseEntity>;
 
 export type AsyncRequestHandler<R = Request<Any, Any, Any, Any, Any>> = (
   req: R,

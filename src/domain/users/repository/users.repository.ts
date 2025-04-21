@@ -1,22 +1,22 @@
-import { Iusers } from './model/users.model';
+import { Users } from '../model/users.model';
 
 export class usersRepository {
-  async findAll(): Promise<Iusers[]> {
+  async findAll(): Promise<Users[]> {
     // Implement database query logic
     throw new Error('Not implemented');
   }
 
-  async findById(id: string): Promise<Iusers | null> {
+  async findById(id: string): Promise<Users | null> {
     // Implement database query logic
     throw new Error('Not implemented');
   }
 
-  async create(data: Iusers): Promise<Iusers> {
+  async create(data: Users): Promise<Users> {
     // Implement database query logic
     throw new Error('Not implemented');
   }
 
-  async update(id: string, data: Partial<Iusers>): Promise<Iusers> {
+  async update(id: string, data: Partial<Users>): Promise<Users> {
     // Implement database query logic
     throw new Error('Not implemented');
   }

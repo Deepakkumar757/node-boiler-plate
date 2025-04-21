@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { usersService } from './users.service';
-import { asyncHandler } from '../../lib/error-handling/error';
+import { usersService } from '../service/users.service';
+import { asyncHandler } from '../../../lib/error-handling/error';
 
 export class usersController {
   private service: usersService;
