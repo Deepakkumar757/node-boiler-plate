@@ -1,3 +1,7 @@
+if (process.env.NODE_ENV === 'production') {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  require('module-alias/register');
+}
 import './utils/env/loadEnv';
 import { errorHandler } from './lib/error-handling/error';
 import { logger } from './lib/logger';

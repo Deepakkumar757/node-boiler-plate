@@ -1,28 +1,29 @@
 // import { logger } from '../../../lib/logger';
 import { Process } from '../model/process.model';
-import { getAllProcessQuery, Iprocess } from '../process.types';
+import { TprocessRepository, Tprocess } from '../process.types';
 import { EntityManager } from 'typeorm';
 import { searchQuery } from '../../../lib/query/search';
 import { pagination } from '../../../lib/query/pagination';
 
 export class processRepository {
-  async findAll(params: getAllProcessQuery): Promise<Iprocess[]> {
-    const { page, limit, search } = params;
+  async findAll(params: TprocessRepository['getAll']): Promise<Tprocess[]> {
+    const { page, limit, search, columns } = params;
     let query = Process.createQueryBuilder('process');
     query = searchQuery<Process>({ columns: ['name'], value: search }, query);
     query = pagination({ limit, page }, query);
-    return query.getMany();
+    query.select(columns);
+    return query.getRawMany();
   }
 
-  async findById(id: string): Promise<Iprocess | null> {
+  async findById(id: string): Promise<Tprocess | null> {
     return Process.findOne({ where: { id } });
   }
 
-  async create(data: Iprocess, transaction: EntityManager): Promise<Iprocess> {
+  async create(data: Tprocess, transaction: EntityManager): Promise<Tprocess> {
     return transaction.getRepository(Process).create(data).save();
   }
 
-  async update(id: string, data: Partial<Iprocess>, transaction: EntityManager): Promise<Iprocess | null> {
+  async update(id: string, data: Partial<Tprocess>, transaction: EntityManager): Promise<Tprocess | null> {
     return transaction
       .getRepository(Process)
       .update(id, data)

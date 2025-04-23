@@ -2,7 +2,7 @@ import swaggerJsdoc from 'swagger-jsdoc';
 import { Application } from 'express';
 import path from 'path';
 import swaggerUi from 'swagger-ui-express';
-import { serverConfig } from '../config';
+import { serverConfig } from '@src/config';
 
 const swagger = (app: Application): void => {
   const swaggerOptions = {

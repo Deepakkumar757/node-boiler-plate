@@ -1,3 +1,4 @@
+import { getClientIp } from '@src/utils/getClientIp';
 import { Request, Response, NextFunction } from 'express';
 import { createLogger, format, transports } from 'winston';
 
@@ -15,9 +16,7 @@ const logger = createLogger({
 });
 
 const appLogger = (req: Request, res: Response, next: NextFunction) => {
-  logger.info(
-    `${req.headers['x-forwarded-for'] || req.socket.remoteAddress} ${req.method} ${req.url} ${res.statusCode}`
-  );
+  logger.info(`${getClientIp(req)} ${req.method} ${req.url} ${res.statusCode}`);
   next();
 };
 

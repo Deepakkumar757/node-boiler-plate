@@ -1,4 +1,4 @@
-import { Column, Entity, Index, OneToMany } from 'typeorm';
+import { BaseEntity, Column, Entity, Index, OneToMany } from 'typeorm';
 // import { Node } from "./Node";
 // import { NodeConfig } from "./NodeConfig";
 import { Process } from '../../process/model/process.model';
@@ -12,8 +12,8 @@ import { Process } from '../../process/model/process.model';
 @Index('users_pkey', ['id'], { unique: true })
 @Index('idx_users_isdeleted', ['isDeleted'], {})
 @Index('idx_users_username', ['userName'], {})
-@Entity('users', { schema: 'dump' })
-export class Users {
+@Entity('users')
+export class Users extends BaseEntity {
   @Column('uuid', { primary: true, name: 'id' })
   id!: string;
 

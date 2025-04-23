@@ -1,11 +1,13 @@
 import { DataSource } from 'typeorm';
-import { dbConfig, initConfig } from '../../config';
+import { dbConfig, initConfig } from '../../../config';
 import path from 'path';
-import { logger } from '../../lib/logger';
+import { logger } from '../../logger';
 
 class Postgres {
   dataSource: DataSource;
+  ext: string;
   constructor() {
+    this.ext = __filename.endsWith('.ts') ? 'ts' : 'js';
     this.dataSource = new DataSource({
       type: 'postgres',
       host: dbConfig.DB_HOST,
@@ -14,9 +16,9 @@ class Postgres {
       password: dbConfig.DB_PASSWORD,
       database: dbConfig.DB_NAME,
       schema: dbConfig.DB_SCHEMA,
-      entities: [path.join(__dirname, '../../domain/*/model/*.model.ts')],
-      migrations: [path.join(__dirname, '../../../migrations/*.ts')],
-      logger: 'advanced-console',
+      entities: [path.join(__dirname, `../../../domain/*/model/*.model.${this.ext}`)],
+      migrations: [path.join(__dirname, `../../../../migrations/*.${this.ext}`)],
+      // logging: true,
       migrationsRun: initConfig.INITIALIZATION_MIGRATION
     });
   }

@@ -1,9 +1,10 @@
 import { processRepository } from '../repository/process.repository';
 import { AppError } from '../../../lib/error-handling/AppError';
-import { getAllProcessQuery, Iprocess } from '../process.types';
+import { getAllProcessQuery, Tprocess } from '../process.types';
 import { EntityManager } from 'typeorm';
 import { v4 as uuid } from 'uuid';
 import { adminId } from '../../../config';
+import { columnsWithAliases } from '../../../lib/query';
 
 export class processService {
   private repository: processRepository;
@@ -13,8 +14,16 @@ export class processService {
   }
 
   async getAll(query: getAllProcessQuery) {
-    const { limit, page, search } = query;
-    return this.repository.findAll({ limit, page, search });
+    const { limit, page, search, asOption } = query;
+    const columns = asOption
+      ? columnsWithAliases<Tprocess>(['id', 'name'], { id: 'value', name: 'label' }, 'process')
+      : columnsWithAliases<Tprocess>(['id', 'name', 'createdAt', 'description', 'processType'], {}, 'process');
+    return this.repository.findAll({
+      limit,
+      page,
+      search,
+      columns
+    });
   }
 
   async getById(id: string) {
@@ -25,7 +34,7 @@ export class processService {
     return item;
   }
 
-  async create(data: Iprocess, transaction: EntityManager) {
+  async create(data: Tprocess, transaction: EntityManager) {
     try {
       const id = uuid();
       data = { ...data, createdBy: adminId, updatedBy: adminId };
@@ -35,7 +44,7 @@ export class processService {
     }
   }
 
-  async update(id: string, data: Partial<Iprocess>, transaction: EntityManager) {
+  async update(id: string, data: Partial<Tprocess>, transaction: EntityManager) {
     const item = await this.repository.findById(id);
     if (!item) {
       throw new AppError(404, 'process not found');
@@ -60,3 +69,5 @@ export class processService {
     }
   }
 }
+
+export default processService;

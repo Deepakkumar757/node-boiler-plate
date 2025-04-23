@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import ProcessRouter from '../domain/process/process.router';
+import ProcessRouter from '@domain/process/process.router';
 
 const routes = Router();
 

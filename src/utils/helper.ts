@@ -128,3 +128,7 @@
 // export const generateRefreshToken = (data: AnyObject) => {
 //   return jwt.sign(data, config.jwt.REFRESH_SECRET, { expiresIn: "2h" });
 // };
+
+export const getFileExtension = () => {
+  return __filename.endsWith('.ts') ? 'ts' : 'js';
+};

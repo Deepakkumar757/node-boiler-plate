@@ -1,14 +1,14 @@
 import express from 'express';
-import { appLogger, logger } from './lib/logger';
-import { serverConfig } from './config';
-import essentialMiddleware from './middleware/essential.middleware';
-import swagger from './lib/swagger';
-import routes from './lib/routes';
-import { Postgres } from './datasource';
+import { appLogger, logger } from '@lib/logger';
+import { serverConfig } from '@src/config';
+import essentialMiddleware from '@src/middleware/essential.middleware';
+import swagger from '@lib/swagger';
+import routes from '@lib/routes';
+import { Postgres } from '@src/lib/datasource/index';
+
+const app = express();
 
 async function startServer() {
-  const app = express();
-
   // Apply essential middleware
   essentialMiddleware(app);
 
@@ -33,4 +33,4 @@ async function startServer() {
   return connection;
 }
 
-export { startServer };
+export { startServer, app };

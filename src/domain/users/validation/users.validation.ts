@@ -1,24 +1,51 @@
-import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { AppError } from '../../../lib/error-handling/AppError';
+// import { processType } from '../process.types';
 
-const usersSchema = z.object({
-  // Add your validation schema here
-});
+// const processSchema = z.object({
+//   name: z.string().min(1).max(100),
+//   description: z.string().min(1).max(255),
+//   processType: z.nativeEnum(processType)
+// });
 
-export const validate = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    await usersSchema.parseAsync(req.body);
-    next();
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      next(error);
-    } else {
-      next(new AppError(400, 'Validation Error', { error: (error as Error).message }));
-    }
-  }
+// export const processCreateDataSchema = {
+//   body: processSchema
+// };
+
+// export const processUpdateDataSchema = {
+//   body: processSchema.extend({
+//     id: z.string().uuid()
+//   })
+// };
+
+// export const processDetailsFetchSchema = {
+//   params: z.object({
+//     id: z.string().uuid()
+//   })
+// };
+
+// export const processRemoveSchema = {
+//   params: z.object({
+//     id: z.string().uuid()
+//   })
+// };
+
+export const userListFetchSchema = {
+  query: z.object({
+    page: z
+      .string()
+      .optional()
+      .default('1')
+      .transform((value) => parseInt(value)),
+    limit: z
+      .string()
+      .optional()
+      .default('10')
+      .transform((value) => parseInt(value)),
+    search: z.string().optional(),
+    asOption: z
+      .string()
+      .optional()
+      .default('false')
+      .transform((val) => val === 'true')
+  })
 };

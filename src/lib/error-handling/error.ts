@@ -71,7 +71,9 @@ const terminateExpressAndExit = async () => {
 
 export const asyncHandler = <T extends AsyncRequestHandler = AsyncRequestHandler>(fn: T) => {
   return (req: Request, res: Response, _next: NextFunction) => {
-    Promise.resolve(fn(req, res, _next)).catch(_next);
+    return Promise.resolve(fn(req, res, _next)).catch((error) => {
+      _next(error);
+    });
   };
 };
 

@@ -41,6 +41,11 @@ export const processListFetchSchema = {
       .optional()
       .default('10')
       .transform((value) => parseInt(value)),
-    search: z.string().optional()
+    search: z.string().optional(),
+    asOption: z
+      .string()
+      .optional()
+      .default('false')
+      .transform((val) => val === 'true')
   })
 };
